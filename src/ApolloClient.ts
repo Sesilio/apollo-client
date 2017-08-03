@@ -5,7 +5,7 @@ import {
   Request,
 } from './transport/networkInterface';
 
-import { execute, ApolloLink } from 'apollo-link-core';
+import { execute, ApolloLink, FetchResult } from 'apollo-link-core';
 
 import {
   ExecutionResult,
@@ -235,6 +235,18 @@ export default class ApolloClient implements DataProxy {
             request,
           ) as any) as Observable<ExecutionResult>;
         }),
+        subscribe: (request: any, handler: any): string => {
+          const subscription = (execute(
+            networkInterface as ApolloLink,
+            request,
+          ) as any).subscribe({
+            next: (data: FetchResult) => handler(data.errors, data.data),
+          });
+          return '';
+        },
+        unsubscribe: (id: string): void => {
+          // wsClient.unsubscribe(id);
+        },
       };
     } else if (
       networkInterface &&
